@@ -94,15 +94,29 @@ export default function CanvasScrollEngine() {
                 const imgRatio = imgToDraw.width / imgToDraw.height;
                 let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
 
-                if (canvasRatio > imgRatio) {
+                // For Mobile (Portrait): Use a "contain" style to prevent left/right cutting
+                // For Desktop (Landscape): Use "cover" style for immersive experience
+                if (canvas.height > canvas.width) {
+                    // Mobile/Portrait: Fit to Width (Show full horizontal view)
                     drawWidth = canvas.width;
                     drawHeight = canvas.width / imgRatio;
                     offsetY = (canvas.height - drawHeight) / 2;
+                    offsetX = 0;
                 } else {
-                    drawHeight = canvas.height;
-                    drawWidth = canvas.height * imgRatio;
-                    offsetX = (canvas.width - drawWidth) / 2;
+                    // Desktop/Landscape: Fit to Height (Cover full screen)
+                    if (canvasRatio > imgRatio) {
+                        drawWidth = canvas.width;
+                        drawHeight = canvas.width / imgRatio;
+                        offsetY = (canvas.height - drawHeight) / 2;
+                        offsetX = 0;
+                    } else {
+                        drawHeight = canvas.height;
+                        drawWidth = canvas.height * imgRatio;
+                        offsetX = (canvas.width - drawWidth) / 2;
+                        offsetY = 0;
+                    }
                 }
+
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.globalAlpha = 0.8; // dim slightly
@@ -124,13 +138,17 @@ export default function CanvasScrollEngine() {
         };
 
         const handleResize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
+            canvas.style.width = `${window.innerWidth}px`;
+            canvas.style.height = `${window.innerHeight}px`;
         };
 
         handleResize();
         window.addEventListener("resize", handleResize);
         render();
+
 
         return () => {
             window.removeEventListener("resize", handleResize);
@@ -149,7 +167,8 @@ export default function CanvasScrollEngine() {
                 </div>
             )}
             <div className="fixed inset-0 w-full h-screen overflow-hidden z-[-1] pointer-events-none">
-                <canvas ref={canvasRef} className="w-full h-full object-cover" />
+                <canvas ref={canvasRef} className="w-full h-full block" />
+
                 <svg className="absolute inset-0 w-full h-full opacity-[0.03] pointer-events-none mix-blend-overlay">
                     <filter id="noiseFilter">
                         <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />

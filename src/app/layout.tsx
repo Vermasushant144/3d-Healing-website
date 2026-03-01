@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import SmoothScroller from '@/components/SmoothScroller';
@@ -9,6 +9,15 @@ export const metadata: Metadata = {
   title: 'AntarMantra | Heal Through Bhagavad Gita',
   description: 'An AI-powered emotional healing web experience taking you deep into the wisdom of Bhagavad Gita.',
 };
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
+
 
 export default function RootLayout({
   children,
